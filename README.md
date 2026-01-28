@@ -1,46 +1,54 @@
-# Getting Started with Create React App
+📘 Projet React – Application de devis
+🎯 Objectif du projet
+Ce projet est une application de devis développée avec React.La base du code a été générée à l’aide de Claude Code, afin de disposer rapidement d’une structure fonctionnelle.
+L’objectif n’est pas uniquement d’utiliser cette base, mais surtout de :
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+✅ prendre en main progressivement React
+✅ comprendre le code existant
+✅ ajouter des fonctionnalités petit à petit
+✅ personnaliser l’application selon mes besoins
+✅ acquérir des compétences en React de manière progressive
 
-## Available Scripts
+Je ne connais pas encore bien la technologie React, ce projet sert donc aussi de support d’apprentissage.
 
-In the project directory, you can run:
+🧱 État actuel de l’application
+Actuellement, l’application permet de :
 
-### `npm start`
+afficher un tableau d’articles
+gérer des lignes avec description et prix
+supprimer une ligne complète du tableau
+calculer un total
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+🚀 Évolutions prévues
+🗂️ Gestion de plusieurs projets
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Associer le tableau actuel à un projet
+Pouvoir créer plusieurs projets
+Consulter et modifier des projets en cours
+Passer facilement d’un projet à un autre
 
-### `npm test`
+➕➖ Gestion des quantités d’articles
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Ajouter des boutons + et − sur chaque ligne
+Modifier la quantité d’un article sans supprimer la ligne
+Mettre à jour automatiquement le total
 
-### `npm run build`
+🧠 Démarche d’apprentissage
+Les fonctionnalités seront ajoutées progressivement, avec pour objectif de :
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+comprendre les bases de React
+apprendre la gestion de l’état (state)
+structurer un projet React proprement
+améliorer la qualité du code au fil du temps
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+✅ Objectif final
+Disposer d’une application :
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+fonctionnelle
+personnalisée
+maintenable
+et surtout comprise dans son intégralité
 
-### `npm run eject`
+📌 Ce projet est volontairement évolutif et pédagogique.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### pour lancer le projet "npm start"
