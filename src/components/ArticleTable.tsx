@@ -64,14 +64,7 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
               {/* Quantité */}
               <td data-label="Quantité">
                 <button
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                    color: "white",
-                    borderRadius: "4px",
-                    border: "solid 2px #f093fb ",
-                    padding: "2px 8px",
-                  }}
+                  id="btn-less-quantity"
                   onClick={() => onUpdateQuantite(article.id, -1)}
                   disabled={article.quantite <= 0}
                 >
@@ -81,13 +74,7 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
                 <span style={{margin: "0 8px"}}>{article.quantite}</span>
 
                 <button
-                  style={{
-                    backgroundColor: "#10b981",
-                    color: "white",
-                    borderRadius: "4px",
-                    border: "solid 2px #10b981",
-                    padding: "2px 8px",
-                  }}
+                  id="btn-more-quantity"
                   onClick={() => onUpdateQuantite(article.id, +1)}
                 >
                   +

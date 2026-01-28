@@ -178,6 +178,21 @@ tfoot td {
   box-shadow: 0 5px 15px rgba(245, 87, 108, 0.5);
 }
 
+#btn-less-quantity {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-radius: 4px;
+  border: solid 2px #f093fb;
+  padding: 2px 8px;
+}
+
+#btn-more-quantity {
+  background: #10b981;
+  color: white;
+  border-radius: 4px;
+  border: solid 2px #10b981;
+  padding: 2px 8px;
+}
 .empty-message {
   text-align: center;
   color: #718096;
