@@ -38,6 +38,23 @@ const App: React.FC = () => {
     setArticles(articles.filter((article) => article.id !== id));
   };
 
+  // NOUVELLE FONCTION :
+  // Modifie la quantité d'un article (+1 ou -1)
+  // delta = +1 (bouton +) ou -1 (bouton -)
+  const updateQuantite = (id: number, delta: number) => {
+    setArticles((prevArticles) =>
+      prevArticles.map((article) =>
+        article.id === id
+          ? {
+              ...article,
+              // Empêche la quantité de passer sous 0
+              quantite: Math.max(0, article.quantite + delta),
+            }
+          : article,
+      ),
+    );
+  };
+
   return (
     <div className="App">
       <header>
@@ -46,7 +63,13 @@ const App: React.FC = () => {
       <main>
         <ArticleForm onAdd={ajouterArticle} />
         {articles.length > 0 ? (
-          <ArticleTable articles={articles} onDelete={supprimerArticle} />
+          <ArticleTable
+            articles={articles}
+            onDelete={supprimerArticle}
+            // NOUVELLE PROP :
+            // Permet au tableau de demander une modification de quantité
+            onUpdateQuantite={updateQuantite}
+          />
         ) : (
           <p className="empty-message">Aucun article ajouté</p>
         )}

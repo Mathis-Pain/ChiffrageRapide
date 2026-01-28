@@ -19,7 +19,7 @@ public/
 ├── favicon.ico ← Icône du site
 ├── logo192.png ← Icône PWA petite
 ├── logo512.png ← Icône PWA grande
-├── manifest.json ← Configuration PWA
+├── manifest.json ← Configuration PWA personnalisable
 └── robots.txt ← Directives pour moteurs de recherche
 
 Le navigateur charge public/index.html
