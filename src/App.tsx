@@ -1,81 +1,230 @@
-import React, {useState, useEffect} from "react";
+import {useState} from "react";
+import "./App.css";
 import ArticleForm from "./components/ArticleForm";
 import ArticleTable from "./components/ArticleTable";
+import ProjectModal from "./components/ProjectModal";
 import {Article} from "./types/Article";
-import "./App.css";
+import {Projet} from "./types/Projet";
 
-const App: React.FC = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
+function App() {
+  // État global : liste de tous les projets (vide au démarrage)
+  const [projects, setProjects] = useState<Projet[]>([]);
 
-  // Charger les données depuis localStorage
-  useEffect(() => {
-    const savedArticles = localStorage.getItem("articles");
-    if (savedArticles) {
-      setArticles(JSON.parse(savedArticles));
-    }
-  }, []);
+  // ID du projet actuellement sélectionné/affiché (null si aucun)
+  const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
 
-  // Sauvegarder dans localStorage à chaque modification
-  useEffect(() => {
-    localStorage.setItem("articles", JSON.stringify(articles));
-  }, [articles]);
+  // État du modal de création de projet
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const ajouterArticle = (
-    nom: string,
-    quantite: number,
-    prixUnitaire: number,
-  ) => {
-    const nouvelArticle: Article = {
-      id: Date.now(),
-      nom,
-      quantite,
-      prixUnitaire,
-    };
-    setArticles([...articles, nouvelArticle]);
-  };
+  // Récupération du projet actif depuis la liste
+  const activeProject = projects.find((p) => p.id === activeProjectId);
 
-  const supprimerArticle = (id: number) => {
-    setArticles(articles.filter((article) => article.id !== id));
-  };
-
-  // NOUVELLE FONCTION :
-  // Modifie la quantité d'un article (+1 ou -1)
-  // delta = +1 (bouton +) ou -1 (bouton -)
-  const updateQuantite = (id: number, delta: number) => {
-    setArticles((prevArticles) =>
-      prevArticles.map((article) =>
-        article.id === id
+  /**
+   * Ajoute un nouvel article au projet actif
+   * @param article - L'article à ajouter (sans ID, généré automatiquement)
+   */
+  const addArticle = (article: Omit<Article, "id">) => {
+    setProjects((previousProjects) =>
+      previousProjects.map((project) =>
+        project.id === activeProjectId
           ? {
-              ...article,
-              // Empêche la quantité de passer sous 0
-              quantite: Math.max(0, article.quantite + delta),
+              ...project,
+              // Ajout du nouvel article avec un ID basé sur le timestamp
+              articles: [...project.articles, {...article, id: Date.now()}],
             }
-          : article,
+          : project,
       ),
     );
   };
 
+  /**
+   * Supprime un article du projet actif
+   * @param id - L'ID de l'article à supprimer
+   */
+  const deleteArticle = (id: number) => {
+    setProjects((previousProjects) =>
+      previousProjects.map((project) =>
+        project.id === activeProjectId
+          ? {
+              ...project,
+              // Filtrage pour retirer l'article correspondant
+              articles: project.articles.filter((article) => article.id !== id),
+            }
+          : project,
+      ),
+    );
+  };
+
+  /**
+   * Modifie la quantité d'un article (incrémentation ou décrémentation)
+   * @param id - L'ID de l'article à modifier
+   * @param delta - La variation de quantité (+1 ou -1)
+   */
+  const updateQuantity = (id: number, delta: number) => {
+    setProjects((previousProjects) =>
+      previousProjects.map((project) =>
+        project.id === activeProjectId
+          ? {
+              ...project,
+              articles: project.articles
+                .map((article) =>
+                  article.id === id
+                    ? {
+                        ...article,
+                        // Empêche les quantités négatives
+                        quantite: Math.max(0, article.quantite + delta),
+                      }
+                    : article,
+                )
+                // Supprime automatiquement les articles à quantité 0
+                .filter((article) => article.quantite > 0),
+            }
+          : project,
+      ),
+    );
+  };
+
+  /**
+   * Crée un nouveau projet avec un nom personnalisé
+   * @param projectName - Le nom du nouveau projet
+   */
+  const createProject = (projectName: string) => {
+    // Génération d'un ID unique (timestamp pour garantir l'unicité)
+    const newId = Date.now();
+
+    setProjects([...projects, {id: newId, nom: projectName, articles: []}]);
+
+    // Sélection automatique du nouveau projet
+    setActiveProjectId(newId);
+
+    // Fermeture du modal
+    setIsModalOpen(false);
+  };
+
+  /**
+   * Supprime un projet
+   * @param projectId - L'ID du projet à supprimer
+   */
+  const deleteProject = (projectId: number) => {
+    // Confirmation avant suppression
+    if (!window.confirm("Voulez-vous vraiment supprimer ce projet ?")) {
+      return;
+    }
+
+    // Suppression du projet
+    setProjects((previousProjects) =>
+      previousProjects.filter((project) => project.id !== projectId),
+    );
+
+    // Si le projet supprimé était actif, on désélectionne
+    if (activeProjectId === projectId) {
+      setActiveProjectId(null);
+    }
+  };
+
+  /**
+   * Calcule le prix total d'une liste d'articles
+   * @param articles - Liste des articles à totaliser
+   * @returns Le prix total (somme des quantité × prix unitaire)
+   */
+  const calculateTotal = (articles: Article[]): number => {
+    return articles.reduce(
+      (sum, article) => sum + article.prixUnitaire * article.quantite,
+      0,
+    );
+  };
+
   return (
-    <div className="App">
+    <div className="app">
+      {/* En-tête de l'application */}
       <header>
-        <h1>Chiffrage Rapide</h1>
+        <h1>📋 Gestion de Devis</h1>
       </header>
-      <main>
-        <ArticleForm onAdd={ajouterArticle} />
-        {articles.length > 0 ? (
+
+      {/* GRILLE DES PROJETS (cartes cliquables) */}
+      <div className="projets-grid">
+        {projects.map((project) => (
+          <div
+            key={project.id}
+            // Classe "actif" si c'est le projet sélectionné
+            className={`projet-card ${project.id === activeProjectId ? "actif" : ""}`}
+          >
+            {/* Contenu cliquable de la carte */}
+            <div
+              className="projet-card-content"
+              onClick={() => setActiveProjectId(project.id)}
+            >
+              <h3>{project.nom}</h3>
+
+              {/* Affichage du prix total avec 2 décimales */}
+              <p className="prix-total">
+                {calculateTotal(project.articles).toFixed(2)} €
+              </p>
+
+              {/* Compteur d'articles avec pluriel automatique */}
+              <span className="nb-articles">
+                {project.articles.length} article
+                {project.articles.length > 1 ? "s" : ""}
+              </span>
+            </div>
+
+            {/* Bouton de suppression du projet */}
+            <button
+              className="btn-delete-project"
+              onClick={(e) => {
+                e.stopPropagation(); // Empêche la sélection du projet
+                deleteProject(project.id);
+              }}
+              title="Supprimer ce projet"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+
+        {/* Bouton pour créer un nouveau projet */}
+        <button
+          className="projet-card nouveau"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <span className="plus">+</span>
+          <span>Nouveau projet</span>
+        </button>
+      </div>
+
+      {/* Message si aucun projet n'existe */}
+      {projects.length === 0 && (
+        <div className="empty-projects">
+          <p>👆 Cliquez sur "Nouveau projet" pour commencer</p>
+        </div>
+      )}
+
+      {/* ZONE D'ÉDITION DU PROJET ACTIF (formulaire + tableau) */}
+      {activeProject && (
+        <div className="projet-actif">
+          <h2>{activeProject.nom}</h2>
+
+          {/* Formulaire d'ajout d'article */}
+          <ArticleForm onAdd={addArticle} />
+
+          {/* Tableau listant tous les articles du projet */}
           <ArticleTable
-            articles={articles}
-            onDelete={supprimerArticle}
-            // NOUVELLE PROP :
-            // Permet au tableau de demander une modification de quantité
-            onUpdateQuantite={updateQuantite}
+            articles={activeProject.articles}
+            onDelete={deleteArticle}
+            onUpdateQuantity={updateQuantity}
           />
-        ) : (
-          <p className="empty-message">Aucun article ajouté</p>
-        )}
-      </main>
+        </div>
+      )}
+
+      {/* Modal de création de projet */}
+      {isModalOpen && (
+        <ProjectModal
+          onConfirm={createProject}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default App;

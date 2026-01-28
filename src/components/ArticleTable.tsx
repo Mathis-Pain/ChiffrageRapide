@@ -1,107 +1,100 @@
-import React from "react";
 import {Article} from "../types/Article";
 
-// Interface des props reçues par le composant
 interface ArticleTableProps {
-  // Liste des articles à afficher (vient du parent)
   articles: Article[];
-  // Fonction envoyée par le parent pour supprimer un article
-  // Prend un id et ne retourne rien (void)
   onDelete: (id: number) => void;
-  // Fonction pour modifier la quantité
-  onUpdateQuantite: (id: number, delta: number) => void;
+  onUpdateQuantity: (id: number, delta: number) => void;
 }
 
-// Déclaration du composant React ArticleTable
-// Il reçoit articles et onDelete via les props
 const ArticleTable: React.FC<ArticleTableProps> = ({
   articles,
   onDelete,
-  onUpdateQuantite,
+  onUpdateQuantity,
 }) => {
-  // Fonction qui calcule le prix total d'un article
-  // quantité × prix unitaire
-  const calculerPrixTotal = (
-    quantite: number,
-    prixUnitaire: number,
-  ): number => {
-    return quantite * prixUnitaire;
+  /**
+   * Calcule le prix total d'une ligne (quantité × prix unitaire)
+   */
+  const calculateLineTotal = (article: Article): number => {
+    return article.quantite * article.prixUnitaire;
   };
 
-  // Fonction qui calcule le total général de tous les articles
-  const calculerTotal = (): number => {
-    // reduce permet de parcourir le tableau articles
-    // total = somme en cours
-    // article = article actuel
-    // On ajoute le prix total de chaque article
-    // 0 = valeur de départ
-    return articles.reduce((total, article) => {
-      return total + calculerPrixTotal(article.quantite, article.prixUnitaire);
-    }, 0);
+  /**
+   * Calcule le total général de tous les articles
+   */
+  const calculateGrandTotal = (): number => {
+    return articles.reduce(
+      (sum, article) => sum + calculateLineTotal(article),
+      0,
+    );
   };
 
-  // Rendu du composant (appelé à chaque changement de props)
+  // Message si aucun article
+  if (articles.length === 0) {
+    return (
+      <p className="empty-message">
+        Aucun article pour le moment. Ajoutez-en un ci-dessus ! 📦
+      </p>
+    );
+  }
+
   return (
     <div className="table-container">
       <table>
+        {/* En-tête du tableau */}
         <thead>
           <tr>
             <th>Nom</th>
             <th>Quantité</th>
-            <th>Prix Unitaire</th>
-            <th>Prix Total</th>
-            <th>Action</th>
+            <th>Prix unitaire</th>
+            <th>Total</th>
+            <th>Actions</th>
           </tr>
         </thead>
+
+        {/* Corps du tableau */}
         <tbody>
-          {/* On transforme chaque article en ligne de tableau */}
           {articles.map((article) => (
-            // key est obligatoire pour React
             <tr key={article.id}>
               {/* Nom de l'article */}
               <td data-label="Nom">{article.nom}</td>
 
-              {/* Quantité */}
+              {/* Contrôles de quantité avec boutons - (rouge) et + (vert) */}
               <td data-label="Quantité">
-                <button
-                  id="btn-less-quantity"
-                  onClick={() => onUpdateQuantite(article.id, -1)}
-                  disabled={article.quantite <= 0}
-                >
-                  −
-                </button>
-
-                <span style={{margin: "0 8px"}}>{article.quantite}</span>
-
-                <button
-                  id="btn-more-quantity"
-                  onClick={() => onUpdateQuantite(article.id, +1)}
-                >
-                  +
-                </button>
+                <div className="quantite-controls">
+                  <button
+                    className="btn-quantite"
+                    onClick={() => onUpdateQuantity(article.id, -1)}
+                    title="Diminuer la quantité"
+                  >
+                    −
+                  </button>
+                  <span className="quantite-value">{article.quantite}</span>
+                  <button
+                    className="btn-quantite"
+                    onClick={() => onUpdateQuantity(article.id, 1)}
+                    title="Augmenter la quantité"
+                  >
+                    +
+                  </button>
+                </div>
               </td>
 
-              {/* Prix unitaire formaté à 2 décimales */}
-              <td data-label="Prix Unitaire">
+              {/* Prix unitaire */}
+              <td data-label="Prix unitaire" className="prix">
                 {article.prixUnitaire.toFixed(2)} €
               </td>
 
-              {/* Prix total (quantité × prix unitaire) */}
-              <td data-label="Prix Total">
-                {calculerPrixTotal(
-                  article.quantite,
-                  article.prixUnitaire,
-                ).toFixed(2)}{" "}
-                €
+              {/* Prix total de la ligne */}
+              <td data-label="Total" className="prix total-ligne">
+                {calculateLineTotal(article).toFixed(2)} €
               </td>
 
-              {/* Bouton de suppression */}
-              <td data-label="Action">
+              {/* Bouton de suppression ROUGE avec texte "Supprimer" */}
+              <td data-label="Actions">
                 <button
-                  // Au clic, on appelle la fonction du parent
-                  // avec l'id de l'article
+                  className="btn-supprimer"
                   onClick={() => onDelete(article.id)}
-                  className="btn-delete"
+                  title="Supprimer l'article"
                 >
                   Supprimer
                 </button>
@@ -110,15 +103,16 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
           ))}
         </tbody>
 
-        {/* Pied du tableau : total général */}
+        {/* Pied de tableau avec total général */}
         <tfoot>
           <tr>
-            <td colSpan={3}>
-              <strong>Total Général</strong>
+            <td colSpan={3} className="total-label">
+              <strong>Total général</strong>
             </td>
-            <td colSpan={2}>
-              <strong>{calculerTotal().toFixed(2)} €</strong>
+            <td className="prix total-general">
+              <strong>{calculateGrandTotal().toFixed(2)} €</strong>
             </td>
+            <td></td>
           </tr>
         </tfoot>
       </table>
@@ -126,5 +120,4 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
   );
 };
 
-// Export du composant pour pouvoir l'utiliser ailleurs
 export default ArticleTable;
